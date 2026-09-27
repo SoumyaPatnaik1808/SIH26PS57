@@ -1,3 +1,4 @@
+import os
 from typing import List, Dict, Any
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -18,13 +19,25 @@ except ModuleNotFoundError:
 
 app = FastAPI(title="Sonar Debris Multi-Evidence Engine")
 
+# Dynamic CORS: Allows specific Vercel frontend URL in production, or all origins if not set
+allowed_origins_env = os.getenv("ALLOWED_ORIGINS")
+if allowed_origins_env:
+    allowed_origins = [origin.strip() for origin in allowed_origins_env.split(",") if origin.strip()]
+else:
+    allowed_origins = ["*"]
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.get("/")
+def health_check():
+    """Quick ping endpoint for Render health checks and uptime monitors."""
+    return {"status": "online", "service": "AetherSound AI Backend"}
 
 engine = MultiEvidenceEngine(meters_per_pixel=0.05)
 
