@@ -6,8 +6,8 @@ from ultralytics import YOLO
 import numpy as np
 from pathlib import Path
 
-from utils.preprocessing import preprocess_sonar_pipeline
-from utils.decision_engine import MultiEvidenceEngine
+from backend.utils.preprocessing import preprocess_sonar_pipeline
+from backend.utils.decision_engine import MultiEvidenceEngine
 
 app = FastAPI(title="Sonar Debris Multi-Evidence Engine")
 
@@ -34,6 +34,7 @@ CLASS_NAMES = {
 
 class DetailedAssessment(BaseModel):
     class_name: str
+    class_id: int
     yolo_confidence: float
     verdict: str
     fused_score: float
@@ -104,15 +105,11 @@ async def detect(
         print(f"  ⭐ Fused Score: {fused:.3f}")
         print(f"  🔬 Evidence Breakdown: {decision.get('evidence_breakdown', {})}")
         
-        # 🚫 STRICT FILTER: Drop ALL rejected verdicts (Natural, No-Physics, Geometry, Hard-Negative)
-        if verdict.startswith("REJECTED"):
-            print(f"  ⛔ DROPPED: Target vetoed with reason -> {verdict}")
-            continue
-            
-        print(f"  ✅ ACCEPTED: Added to final payload.")
+        print(f"  📋 RETAINED: Candidate included in final report.")
         final_output.append(
             DetailedAssessment(
                 class_name=class_name,
+                class_id=cls_id,
                 yolo_confidence=round(raw_conf, 3),
                 verdict=verdict,
                 fused_score=fused,
@@ -124,6 +121,6 @@ async def detect(
             )
         )
         
-    print(f"\n🏁 [PIPELINE COMPLETE] Returning {len(final_output)} verified target(s)")
+    print(f"\n🏁 [PIPELINE COMPLETE] Returning {len(final_output)} model candidate(s)")
     print("=" * 55 + "\n")
     return final_output

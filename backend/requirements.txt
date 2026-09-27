@@ -6,3 +6,5 @@ numpy
 pydantic
 python-multipart
 ultralytics
+onnx
+onnxruntime
