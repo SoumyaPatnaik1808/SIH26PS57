@@ -55,12 +55,14 @@ async def detect(
     print(f"📍 Towfish params: altitude={altitude}m, lat={towfish_lat}, lon={towfish_lon}")
     
     image_bytes = await file.read()
-    processed_image = preprocess_sonar_pipeline(image_bytes)
-    print(f"🖼️ Preprocessing finished: Image shape {processed_image.shape}")
     
-    # Run YOLO with conf=0.25 to see low-confidence candidates
+    # 🔀 Unpack Decoupled Dual-Stream (Visual for AI, Radiometric for Physics)
+    visual_image, radiometric_image = preprocess_sonar_pipeline(image_bytes)
+    print(f"🖼️ Dual-Stream Preprocessing finished: Shape {visual_image.shape}")
+    
+    # Run YOLO on Stream A (Visual CLAHE Stream)
     CONF_THRESHOLD = 0.25
-    results = model.predict(processed_image, imgsz=640, conf=CONF_THRESHOLD)
+    results = model.predict(visual_image, imgsz=640, conf=CONF_THRESHOLD)
     result = results[0]  # type: ignore
     
     final_output = []
@@ -85,9 +87,9 @@ async def detect(
         print(f"  📊 Raw Confidence: {raw_conf:.3f}")
         print(f"  📐 OBB [x, y, w, h, r]: {[round(x, 2) for x in xywhr]}")
         
-        # 🧠 Run all 6 pillars of evidence through the decision engine
+        # 🧠 Run 6 pillars of evidence on Stream B (Pure Radiometric Stream)
         decision = engine.evaluate(
-            img=processed_image,
+            img=radiometric_image,
             obb_xywhr=xywhr,
             class_name=class_name,
             altitude_m=altitude,
@@ -102,9 +104,9 @@ async def detect(
         print(f"  ⭐ Fused Score: {fused:.3f}")
         print(f"  🔬 Evidence Breakdown: {decision.get('evidence_breakdown', {})}")
         
-        # 🚫 Check rejection filter
-        if verdict == "REJECTED_AS_NATURAL_ARTIFACT":
-            print(f"  ⛔ DROPPED: Filtered out as natural seabed/artifact.")
+        # 🚫 STRICT FILTER: Drop ALL rejected verdicts (Natural, No-Physics, Geometry, Hard-Negative)
+        if verdict.startswith("REJECTED"):
+            print(f"  ⛔ DROPPED: Target vetoed with reason -> {verdict}")
             continue
             
         print(f"  ✅ ACCEPTED: Added to final payload.")
