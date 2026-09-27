@@ -7,9 +7,14 @@ import numpy as np
 import cv2
 from pathlib import Path
 
-from backend.utils.preprocessing import preprocess_sonar_pipeline
-from backend.utils.decision_engine import MultiEvidenceEngine
-from backend.utils.sonar_validator import validate_sonar_image
+try:
+    from backend.utils.preprocessing import preprocess_sonar_pipeline
+    from backend.utils.decision_engine import MultiEvidenceEngine
+    from backend.utils.sonar_validator import validate_sonar_image
+except ModuleNotFoundError:
+    from utils.preprocessing import preprocess_sonar_pipeline
+    from utils.decision_engine import MultiEvidenceEngine
+    from utils.sonar_validator import validate_sonar_image
 
 app = FastAPI(title="Sonar Debris Multi-Evidence Engine")
 
