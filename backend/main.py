@@ -1,13 +1,15 @@
 from typing import List, Dict, Any
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from ultralytics import YOLO
 import numpy as np
+import cv2
 from pathlib import Path
 
 from backend.utils.preprocessing import preprocess_sonar_pipeline
 from backend.utils.decision_engine import MultiEvidenceEngine
+from backend.utils.sonar_validator import validate_sonar_image
 
 app = FastAPI(title="Sonar Debris Multi-Evidence Engine")
 
@@ -56,6 +58,25 @@ async def detect(
     print(f"📍 Towfish params: altitude={altitude}m, lat={towfish_lat}, lon={towfish_lon}")
     
     image_bytes = await file.read()
+    
+    # 🛡️ INPUT VALIDATION: Reject non-sonar images before they reach the model
+    np_arr = np.frombuffer(image_bytes, np.uint8)
+    raw_gray = cv2.imdecode(np_arr, cv2.IMREAD_GRAYSCALE)
+    if raw_gray is None:
+        raise HTTPException(status_code=422, detail="Could not decode image. Please upload a valid image file.")
+    
+    validation = validate_sonar_image(raw_gray)
+    print(f"🛡️ [SONAR VALIDATOR] Score: {validation['confidence']:.2f} | Valid: {validation['is_valid']}")
+    if not validation["is_valid"]:
+        print(f"🚫 [REJECTED] {validation['reason']}")
+        print(f"   Checks: {validation['checks']}")
+        print("=" * 55 + "\n")
+        raise HTTPException(
+            status_code=422,
+            detail=f"This does not appear to be a sonar image. {validation['reason']}. "
+                   f"(Sonar confidence: {validation['confidence']:.0%}). "
+                   f"Please upload a valid side-scan sonar scan."
+        )
     
     # 🔀 Unpack Decoupled Dual-Stream (Visual for AI, Radiometric for Physics)
     visual_image, radiometric_image = preprocess_sonar_pipeline(image_bytes)
