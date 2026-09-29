@@ -26,7 +26,7 @@ type Target = {
   };
 };
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "*";
 
 type EvidenceInfo = {
   key: string;
@@ -404,10 +404,7 @@ export default function Home() {
           <span>AETHER<span className="brand-light">SOUND</span> AI</span>
         </a>
         <div className="topbar-right">
-          <div className="system-status">
-            <span className="live-dot" />
-            <span>SONAR ENGINE ONLINE</span>
-          </div>
+         
           <button className="nav-upload" onClick={jumpToConsole}>INGEST SONAR LOG <ArrowUpRight size={14} /></button>
         </div>
       </header>
@@ -415,22 +412,9 @@ export default function Home() {
       <section className="hero" id="top">
         <div className="hero-grid" />
         
-        {/* Animated Pure-CSS Tactical Sonar Radar Sweep */}
-        <div className="sonar-visual" aria-hidden="true">
-          <div className="sonar-ring ring-one" />
-          <div className="sonar-ring ring-two" />
-          <div className="sonar-ring ring-three" />
-          <div className="sonar-sweep" />
-          <div className="sonar-origin" />
-          <div className="sonar-contact contact-one" />
-          <div className="sonar-contact contact-two" />
-          <span className="range-label range-a">RANGE 50M</span>
-          <span className="range-label range-b">RANGE 100M</span>
-          <div className="ghost-vessel"><span /><i></i><b></b></div>
-        </div>
 
         <div className="hero-content">
-          <div className="eyebrow"><span className="eyebrow-line" /> AUTONOMOUS MINE &amp; DEBRIS COUNTERMEASURES</div>
+          
           <h1>ILLUMINATING THE<br /><span>ABYSSAL SILENCE.</span></h1>
           <p className="hero-copy">Autonomous sonar intelligence detecting ghost nets, benthic debris, and submerged hazards across Indian EEZ waters with millimetric precision and acoustic shadow physics validation.</p>
           <div className="hero-actions">
@@ -438,15 +422,14 @@ export default function Home() {
             <a className="secondary-button" href="#console"><span className="play-icon"><ArrowDown size={13} /></span> EXPLORE THE CONSOLE</a>
           </div>
         </div>
-        <div className="hero-index"><span>01</span><i /> <span>02</span></div>
-        <a href="#console" className="scroll-cue"><span>SCROLL TO ANALYZE</span><ArrowDown size={13} /></a>
+     
       </section>
 
       <section className="console-section" ref={consoleRef} id="console">
         <div className="console-heading">
           <div>
-            <span className="section-kicker">FIELD CONSOLE / TACTICAL ACOUSTIC SWEEP</span>
-            <h2>Acoustic Telemetry &amp; Physics Validation</h2>
+            
+            <h2>Ingest your Sonar Image here</h2>
           </div>
         </div>
 
