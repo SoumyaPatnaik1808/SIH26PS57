@@ -1,11 +1,12 @@
 "use client";
 
+import Image from "next/image";
 import { ChangeEvent, DragEvent, useEffect, useRef, useState } from "react";
 import {
   ArrowDown, ArrowUpRight, Check, ChevronRight, Compass,
   Crosshair, Download, Eye, EyeOff, FileImage, Focus, HelpCircle,
   Info, Layers3, MapPin, Radar, Radio, ScanLine,
-  ShieldAlert, ShieldCheck, Upload, Waves, X,
+  ShieldAlert, ShieldCheck, Upload, X,
 } from "lucide-react";
 
 type Target = {
@@ -400,7 +401,7 @@ export default function Home() {
     <main>
       <header className="topbar">
         <a className="brand" href="#top" aria-label="Aether Sound AI home">
-          <span className="brand-mark"><Waves size={18} strokeWidth={1.8} /></span>
+          <Image className="brand-mark" src="/logo.png" alt="" width={1052} height={854} priority />
           <span>AETHER<span className="brand-light">SOUND</span> AI</span>
         </a>
         <div className="topbar-right">
@@ -770,7 +771,7 @@ export default function Home() {
 
       <footer className="footer">
         <a className="brand footer-brand" href="#top">
-          <span className="brand-mark"><Waves size={16} /></span>
+          <Image className="brand-mark" src="/logo.png" alt="" width={1052} height={854} />
           <span>AETHER<span className="brand-light">SOUND</span> AI</span>
         </a>
         <span>ACOUSTIC INTELLIGENCE FOR A CLEARER OCEAN</span>
